@@ -4,6 +4,7 @@ Site statique (HTML/CSS/JS, aucune dépendance) basé sur `strategie_blackjack.p
 Ouvre simplement `index.html` dans un navigateur, ou publie le dépôt avec GitHub Pages.
 
 - **Simulation** : joue N mains automatiquement en suivant exactement le guide (stats, EV, avantage maison, courbe de bankroll, résultat par carte du croupier).
+- **Mode capital** (simulation) : capital de départ, objectif de profit, arrêt à la ruine, et plusieurs sessions pour estimer la probabilité d’atteindre l’objectif avant la ruine.
 - **Entraînement** : joue contre le croupier ; chaque décision est corrigée avec la case du guide, et tes statistiques sont sauvegardées (localStorage).
 - **Tableau** : les tableaux du guide, plus les paires converties en totaux.
 
