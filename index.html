@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blackjack Trainer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>♠ Blackjack Trainer</h1>
+  <p class="sub">Stratégie de base du guide · 6–8 jeux · S17 · blackjack 3:2 · double · abandon · <strong>split interdit</strong> · pas d'assurance</p>
+  <nav role="tablist">
+    <button class="tab active" data-tab="sim" role="tab">Simulation</button>
+    <button class="tab" data-tab="practice" role="tab">Entraînement</button>
+    <button class="tab" data-tab="chart" role="tab">Tableau</button>
+  </nav>
+</header>
+
+<main>
+<!-- ===================== SIMULATION ===================== -->
+<section id="tab-sim" class="panel">
+  <div class="card-box">
+    <h2>Simuler N mains</h2>
+    <p class="muted">Chaque main est jouée automatiquement en suivant exactement le guide (mise de 1 unité, jamais d'assurance, jamais de split).</p>
+    <div class="form">
+      <label>Nombre de mains
+        <input id="sim-n" type="number" min="1" max="100000000" value="100000" step="1">
+      </label>
+      <div class="presets" id="sim-presets">
+        <button data-n="1000">1 k</button><button data-n="10000">10 k</button>
+        <button data-n="100000">100 k</button><button data-n="1000000">1 M</button>
+        <button data-n="10000000">10 M</button>
+      </div>
+      <label>Jeux dans le sabot
+        <select id="sim-decks"><option>6</option><option>8</option></select>
+      </label>
+      <label>Mise unitaire (€)
+        <input id="sim-unit" type="number" min="0" value="10">
+      </label>
+      <label class="check"><input id="sim-surr" type="checkbox" checked> Abandon autorisé</label>
+      <div class="btns">
+        <button id="sim-run" class="primary">Lancer la simulation</button>
+        <button id="sim-stop" disabled>Arrêter</button>
+      </div>
+    </div>
+    <div class="progress" id="sim-progress" hidden><div></div></div>
+  </div>
+
+  <div id="sim-results" hidden>
+    <div class="stats-grid" id="sim-kpis"></div>
+    <div class="card-box"><h3>Évolution du bankroll</h3><canvas id="sim-canvas" height="260"></canvas></div>
+    <div class="two-col">
+      <div class="card-box"><h3>Résultats des mains</h3><table class="data" id="sim-outcomes"></table></div>
+      <div class="card-box"><h3>Résultat par carte du croupier</h3><table class="data" id="sim-byup"></table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ENTRAÎNEMENT ===================== -->
+<section id="tab-practice" class="panel" hidden>
+  <div class="practice-grid">
+    <div>
+      <div class="table-felt">
+        <div class="hand-zone">
+          <div class="zone-title">Croupier <span id="p-dealer-total" class="total"></span></div>
+          <div class="cards" id="p-dealer"></div>
+        </div>
+        <div id="p-banner" class="banner">Clique sur « Nouvelle main » pour commencer.</div>
+        <div class="hand-zone">
+          <div class="zone-title">Toi <span id="p-player-total" class="total"></span> <span id="p-tag" class="tag" hidden></span></div>
+          <div class="cards" id="p-player"></div>
+        </div>
+      </div>
+
+      <div class="actions" id="p-actions">
+        <button data-act="H" disabled>Tirer <kbd>H</kbd></button>
+        <button data-act="S" disabled>Rester <kbd>S</kbd></button>
+        <button data-act="D" disabled>Doubler <kbd>D</kbd></button>
+        <button data-act="R" disabled>Abandonner <kbd>R</kbd></button>
+      </div>
+      <div class="actions">
+        <button id="p-next" class="primary">Nouvelle main <kbd>N</kbd></button>
+        <button id="p-hint" disabled>Indice <kbd>?</kbd></button>
+      </div>
+      <div id="p-feedback" class="feedback" hidden></div>
+
+      <div class="form inline">
+        <label>Jeux <select id="p-decks"><option>6</option><option>8</option></select></label>
+        <label class="check"><input id="p-surr" type="checkbox" checked> Abandon autorisé</label>
+      </div>
+    </div>
+
+    <aside class="card-box">
+      <h3>Tes statistiques</h3>
+      <div class="big-acc"><span id="st-acc">–</span><small>de bonnes décisions</small></div>
+      <table class="data" id="st-table"></table>
+      <h4>Précision par type de main</h4>
+      <table class="data" id="st-types"></table>
+      <h4>Précision selon le bon coup</h4>
+      <table class="data" id="st-actions"></table>
+      <h4>Dernières erreurs</h4>
+      <ul class="mistakes" id="st-mistakes"></ul>
+      <button id="st-reset" class="danger">Réinitialiser les stats</button>
+    </aside>
+  </div>
+</section>
+
+<!-- ===================== TABLEAU ===================== -->
+<section id="tab-chart" class="panel" hidden>
+  <div class="card-box">
+    <h2>Tableaux de stratégie</h2>
+    <div class="legend">
+      <span class="c-H">H</span> Tirer
+      <span class="c-S">S</span> Rester
+      <span class="c-D">D</span> Doubler (si interdit : tirer)
+      <span class="c-Ds">Ds</span> Doubler (si interdit : rester)
+      <span class="c-R">R</span> Abandonner (si interdit : tirer)
+    </div>
+    <h3>Mains dures</h3><div class="scroll"><table class="strat" id="t-hard"></table></div>
+    <h3>Mains souples (As compté 11)</h3><div class="scroll"><table class="strat" id="t-soft"></table></div>
+    <h3>Paires — split interdit</h3>
+    <p class="muted">Le guide sépare (P) certaines paires ; ici le split est interdit, donc chaque paire se joue comme son total avec les tableaux ci-dessus.</p>
+    <div class="scroll"><table class="strat" id="t-pairs"></table></div>
+    <p class="muted">A-A est un « souple 12 », absent du guide (il y est séparé) : on tire toujours.</p>
+    <h3>Règles d'or</h3>
+    <ul class="rules">
+      <li>Ne prends jamais l'assurance (avantage maison ≈ 7 %).</li>
+      <li>Joue seulement aux tables qui paient le blackjack 3:2, jamais 6:5.</li>
+      <li>Préfère les tables S17 avec abandon.</li>
+      <li>Évite les systèmes de mise (Martingale…) : ils ne changent pas l'espérance.</li>
+      <li>Ne dévie pas « au feeling ».</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer>Outil d'entraînement uniquement. Le blackjack reste un jeu à espérance négative.</footer>
+
+<script src="js/strategy.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/practice.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
