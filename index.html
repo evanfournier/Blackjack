@@ -24,7 +24,7 @@
     <h2>Simuler N mains</h2>
     <p class="muted">Chaque main est jouée automatiquement en suivant exactement le guide (mise de 1 unité, jamais d'assurance, jamais de split).</p>
     <div class="form">
-      <label>Nombre de mains
+      <label>Nombre de mains (max. par session)
         <input id="sim-n" type="number" min="1" max="100000000" value="100000" step="1">
       </label>
       <div class="presets" id="sim-presets">
@@ -39,17 +39,30 @@
         <input id="sim-unit" type="number" min="0" value="10">
       </label>
       <label class="check"><input id="sim-surr" type="checkbox" checked> Abandon autorisé</label>
+      <label class="check"><input id="sim-cap-on" type="checkbox"> Mode capital (arrêt sur objectif ou ruine)</label>
       <div class="btns">
         <button id="sim-run" class="primary">Lancer la simulation</button>
         <button id="sim-stop" disabled>Arrêter</button>
       </div>
+    </div>
+    <div class="form" id="sim-cap-opts" hidden>
+      <label>Capital de départ (€)
+        <input id="sim-cap" type="number" min="1" value="1000">
+      </label>
+      <label>Objectif de profit (€, vide = aucun)
+        <input id="sim-target" type="number" min="0" value="500">
+      </label>
+      <label>Nombre de sessions
+        <input id="sim-sessions" type="number" min="1" max="100000" value="1">
+      </label>
+      <p class="muted" style="grid-column:1/-1;margin:0">Chaque session s'arrête dès que l'objectif est atteint, quand le capital ne permet plus de miser 1 unité (ruine), ou au nombre maximum de mains ci-dessus. Plusieurs sessions donnent la probabilité d'atteindre l'objectif avant la ruine.</p>
     </div>
     <div class="progress" id="sim-progress" hidden><div></div></div>
   </div>
 
   <div id="sim-results" hidden>
     <div class="stats-grid" id="sim-kpis"></div>
-    <div class="card-box"><h3>Évolution du bankroll</h3><canvas id="sim-canvas" height="260"></canvas></div>
+    <div class="card-box"><h3 id="sim-curve-title">Évolution du bankroll</h3><canvas id="sim-canvas" height="260"></canvas></div>
     <div class="two-col">
       <div class="card-box"><h3>Résultats des mains</h3><table class="data" id="sim-outcomes"></table></div>
       <div class="card-box"><h3>Résultat par carte du croupier</h3><table class="data" id="sim-byup"></table></div>
